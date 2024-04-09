@@ -1,6 +1,8 @@
 import React, { useState,useRef } from 'react'
 import Header from './Header'
 import { checkvlaidData } from '../utils/validate'
+import { auth } from '../utils/firebase'
+import { createUserWithEmailAndPassword , signInWithEmailAndPassword} from "firebase/auth";
 const Login = () => {
 
     const [isSignInForm,setisSignInForm]=useState(true)
@@ -13,6 +15,40 @@ const Login = () => {
     const handlebuttonclick =()=>{    
      const message= checkvlaidData(email.current.value,password.current.value,username.current.value,phonenum.current.value) //these are the value inside he objects
      setErrormessage(message)
+     if(message) return   // if there is an error it will return if it is correct then go for signin/signup
+
+        //sign in sign Up logic    
+     if(!isSignInForm){
+          //sign up logic
+          createUserWithEmailAndPassword(auth, email.current.value,password.current.value)
+              .then((userCredential) => {
+                // Signed up 
+                const user = userCredential.user;
+                console.log(user)
+                // ...
+              })
+              .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                // ..
+                setErrormessage(errorCode+'-'+errorMessage)
+              });
+     }
+     else{
+          //sign in logic
+          signInWithEmailAndPassword(auth, email.current.value, password.current.value )
+  .then((userCredential) => {
+    // Signed in 
+    const user = userCredential.user;
+    console.log(user)
+    // ...
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    setErrormessage(errorCode+'-'+errorMessage)
+  });
+     }
     }
 
     const toggleSigninFrom =()=>{
